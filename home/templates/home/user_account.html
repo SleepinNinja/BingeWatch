@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/request_table.css' %}" {% endblock head %} {% block content %} {% include 'navbar.html' %} <div class="container mt-4">
+<div class="row">
+  <div class="col-md-8">
+    <div class="card mb-3 mx-auto" style="max-width: 540px;">
+      <div class="row no-gutters">
+        <div class="col-md-4">
+          <img src="..." class="card-img" alt="...">
+        </div>
+        <div class="col-md-8">
+          <div class="card-body">
+            <h5 class="card-title">{{ user.username|title }},
+              <small class="text-muted">{{ user.first_name|title }} {{ user.last_name|title }}</small>
+            </h5>
+            <p class="card-text">{{user.description }}</p>
+            <p class="card-text">{{ user.email }}<p>
+                <p class="card-text">
+                  <small class="text-muted">Followers {% if user.followers_set %}
+                    {{ user.followers_set.count }}
+                    {% else %}
+                    0
+                    {% endif %}</small>
+                  <small class="text-muted ml-4">Following
+                    {% if user.followings_set %}
+                    {{ user.followings_set.count }}
+                    {% else %}
+                    0
+                    {% endif %}
+                  </small>
+                </p>
+          </div>
+          <div class="card-footer">
+            <a class='btn btn-info' href="{% url 'update_account' request.user.username %}">Update account</a>
+            <a class='btn btn-info ml-3' href="{% url 'change_password' %}">Change password</a>
+          </div>
+        </div>
+        <div class="col-md-4">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="table-wrapper-scroll-y my-custom-scrollbar">
+      <table class="table table-bordered table-striped mb-0">
+        <tbody>
+          <tr>
+            {% for request in user_requestlist %}
+            <th scope="row">
+              {{ request.user.username }} has sent you a follow request.
+              <a href="{% url 'accept_request' request.uuid %}" class='btn btn-success btn-sm mx-5'>Accept<a />
+                <a href="{% url 'accept_request' request.uuid %}" class='btn btn-danger btn-sm'>Deny<a />
+            </th>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+<div class='container mt-5'>
+  {% include 'home/user_upload_navbar.html' %}
+</div>
+{% endblock content %}

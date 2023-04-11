@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-6 col-md-12">
+            <h4 class='text-center'>Upload Episodes</h4>
+            <form method="POST">
+                {% if media_formset.non_form_errors %}
+                    {{ media_formset.non_form_errors }}
+                {% endif %}
+                {% csrf_token %}
+                {{ media_formset.management_form }}
+                {% for form in media_formset %}
+                    {{ form|crispy }}
+                {% endfor %}
+                <button type="submit" class="btn btn-info">Done</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

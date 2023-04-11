@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'navbar.html' %}
+<div class="container-fluid">
+  <div class="mt-5">
+    <h3 class="text-center">Episodes</h3>
+    <div class="row">
+      {% for media in medias %}
+      <div class="col-lg-4 col-md-6 my-3 px-1">
+        <div class="card ">
+          <a href="{{ media.get_absolute_url_multi_media }}" class="nav-link text-dark">
+            {% if media.cover %}
+            <img src="{{ media.cover.url }}" class="card-img-top" alt="...">
+            {% endif %}
+            <div class="card-body">
+              <h4 class="card-title">{{ media.name }}</h4>
+              {% if media.desciption %}
+              <p class="card-text">Description:<br>{{ media.description }}</p>
+              {% endif %}
+              <p class="card-text">
+                <small class="text-muted">Uploaded on : {{ media.upload_date }}</small>
+              </p>
+            </div>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock content %}

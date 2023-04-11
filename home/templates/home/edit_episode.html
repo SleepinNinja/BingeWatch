@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'navbar.html' %}
+	{% if messages %}
+		{% for message in messages %}
+			{{ message }}
+		{% endfor %}
+	{% endif %}
+	{% if media_form.errors %}
+		{{ media_form.errors }}
+	{% endif %}
+	<div class="container pt-5">
+		<form method="POST">
+			{% csrf_token %}
+			{{ media_form|crispy }}
+			<button class="btn btn-block btn-success" type="submit">Done</button>
+		</form>
+	</div>
+
+{% endblock content %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'navbar.html' %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="jumbotron mt-5">
+                {% if playlist.cover %}
+                <img src="{{ playlist.cover.url }}" class="img-fluid" alt="Responsive image">
+                {% endif %}
+                <h1 class="display-4">{{ playlist.name }}</h1>
+                <p class="lead">Genre: {{ playlist.genre }}</p>
+                <p class="lead">{{ playlist.description }}</p>
+                <hr class="my-4">
+                <p>Quality: {{ playlist.quality }}</p>
+                <p>Uploaded By: {{ playlist.uploader.username|title }}, Uploaded On: {{ playlist.date_created }}</p>
+                {% if request.user != playlist.uploader %}
+                <a href="{% url 'follow_uploader' playlist.uploader.username %}" class="btn btn-success">Follow {{ playlist.uploader.username|title }}</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h3 class="text-center">Seasons</h3>
+        <div class="row">
+        	{% for multi_media in multi_medias %}
+            <div class="col-lg-4 col-md-6 my-3 px-1">
+                <div class="card ">
+                    <a href="{{ multi_media.get_absolute_url }}" class="nav-link text-dark">
+                        {% if multi_media.cover %}
+                    <img src="{{ multi_media.cover.url }}" class="card-img-top" alt="...">
+                    {% endif %}
+                    <div class="card-body">
+                        <h4 class="card-title">{{ multi_media.name }}</h4>
+                        <p class="card-text">No.of episodes: {{ multi_media.media_set.all|length }}</p>
+                        <p class="card-text">Description:<br>{{ multi_media.description }}</p>
+                        <p class="card-text">
+                            <small class="text-muted">Uploaded on : {{ multi_media.date_created }}</small>
+                            <small class="text-muted">Uploaded by : {{ multi_media.playlist.uploader.username|title }}</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

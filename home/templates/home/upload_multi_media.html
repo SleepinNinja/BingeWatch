@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-6 col-md-12">
+            <h4 class='text-center'>Create Season</h4>
+            <form method="POST">
+                {% csrf_token %}
+                {{ multi_media_form|crispy }}
+                <button type="submit" class="btn btn-info">Continue</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'navbar.html' %}
+{% include 'home/search_form.html' %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-9">
+            <div class="jumbotron mt-5">
+                <h1 class="display-4">Welcome to BingeWatch!</h1>
+                <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
+                <hr class="my-4">
+                <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
+                <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
+            </div>
+        </div>
+        <div class="col-3 text-center">
+            {% include 'home/side_nav.html' %}
+            {% block genre %}
+               {% for val1, val2 in genres %} 
+                  <a class="nav-link" href="{% url 'search' val2 %}">{{ val2 }}</a>
+               {% endfor %}
+            {% endblock genre %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if message %}
+{% for message in messages %}
+{{ message }}
+{% endfor %}
+{% endif %}
+{% load crispy_forms_tags %}
+<div class="container">
+    <form class="" method="post">
+        {% if signup_form.errors %}
+        {{ signup_form.error }}
+        {% endif %}
+        {% csrf_token %}
+        {{ signup_form|crispy }}
+        <div class="">
+            <button type="submit" class="btn btn-info" name="button">SignUp</button>
+        </div>
+    </form>
+</div>
+{% endblock content %}

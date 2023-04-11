@@ -1,0 +1,14 @@
+{% load crispy_forms_tags %}
+<div class="container">
+    <div class="col-lg-8 col-sm-10 m-auto pt-3">
+        <form class="form-inline" method="POST">
+            {% if errors %}
+                {{ errors }}
+            {% endif %}
+            {% csrf_token %}
+            {{ search_form|crispy }}
+            <button class="btn btn-outline-success my-2 my-sm-0 ml-5" type="submit">Search</button>
+        </form>
+        </nav>
+    </div>
+</div>

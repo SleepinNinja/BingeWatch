@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block body %}
+   {% for message in messages %}
+      {{ message }}
+   {% endfor %}
+
+   <form method="post">
+      {% csrf_token %}
+
+      {% for error in errors %}
+         {{ error }}
+      {% endfor %}
+
+      {{ otp_form|crispy }}
+      <button type="submit" class="btn btn-info" name="button">Confirm</button>
+   </form>
+{% endblock body %}

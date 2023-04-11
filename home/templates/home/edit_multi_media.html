@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'navbar.html' %}
+	{% if messages %}
+		{% for message in messages %}
+			{{ message }}
+		{% endfor %}
+	{% endif %}
+	{% if multi_media_form.errors %}
+		{{ multi_media_form.errors }}
+	{% endif %}
+	<div class="container pt-5">
+		<form method="POST">
+			{% csrf_token %}
+			{{ multi_media_form|crispy }}
+			<button class="btn btn-block btn-success" type="submit">Done</button>
+		</form>
+	</div>
+	    <div class="mt-5">
+        <h3 class="text-center">Episodes</h3>
+        <div class="row">
+            {% for episode in multi_media_episodes %}
+            <div class="col-lg-4 col-md-6 my-3 px-1">
+                <div class="card ">
+                    <img src="..." class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h4 class="card-title">{{ episode.name|title }}</h4>
+                        <p class="card-text">
+                            <small class="text-muted">Uploaded on : {{ episode.upload_date }} <br> Views: {{ episode.views }}, Likes: {{ episode.likes }}, Dislikes {{ episode.dislikes }}</small>
+                        </p>
+                        <p class="card-footer text-center my-auto">
+                            <a class="btn btn-info" href="{% url 'edit_episode' episode.uuid %}">Edit</a>
+                            <a class="btn btn-danger" href="{% url 'delete_episode' episode.uuid %}">Delete</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <a class="btn btn-info" href="{% url 'add_more_episodes' multi_media_episodes.first.multi_media.uuid %}">Add Episodes</a>
+    </div>
+
+{% endblock content %}

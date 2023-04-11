@@ -1,0 +1,7 @@
+<nav class="nav nav-pills nav-fill">
+  <a class="nav-item nav-link" href="{% url 'recent_uploads' request.user.username %}">Recent Uploads</a>
+  {% for types in media_types %}
+    <a class="nav-item nav-link" href="#">{{ types }}</a>
+  {% endfor %}
+  <a class="nav-item nav-link" href="{% url 'upload_media' request.user.username %}">New Upload</a>
+</nav>

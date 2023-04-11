@@ -22,6 +22,7 @@
     <button onclick="download(event)"><i class="fa fa-cloud-download"></i></button>
   </div>
 </div>
+{% if other_episodes %}
 <div class="container-fluid">
   <div class="mt-5">
     <h3 class="text-center">Episodes</h3>
@@ -48,6 +49,7 @@
       {% endfor %}
     </div>
   </div>
+{% endif %}
 {% block script %}
 <script src="{% static 'js/video_player.js' %}"></script>
 {% endblock script %}

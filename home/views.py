@@ -15,7 +15,6 @@ def find(search_value):
     genres = [genres[1] for genres in models.BaseMedia.MEDIA_GENRES]
     if search_value in genres:
         playlist_obj = models.VideoPlayList.objects.first()
-        print(search_value, playlist_obj.genre, playlist_obj.media_type == 'A', search_value in str(playlist_obj.genre))
         anime = [playlist for playlist in models.VideoPlayList.objects.filter(media_type = 'A') if (search_value in str(playlist.genre))]
         web_series = [playlist for playlist in models.VideoPlayList.objects.filter(media_type = 'W') if (search_value in str(playlist.genre))]
         single_medias = [single_media for single_media in models.SingleMedia.objects.all() if search_value in str(single_media.genre)]
@@ -113,16 +112,18 @@ def search(request, search_value):
             'search_value': search_value,
             'search_form': form,
             'genres': [genre[1] for genre in genres],
-            'moveis': movies,
+            'movies': movies,
             'web_series': web_series,
             'animes': anime,
         }
+
+        #print(context)
 
     return render(request, 'home/search.html', context)
 
 
 
-# <------------------ show search results ------------------>
+# <------------------ show search results and playing media ------------------>
 
 def open_playlist(request, search_value, uuid):
     if request.method == 'GET':
@@ -161,6 +162,16 @@ def open_video(request, search_value, season_name, season_uuid, video_uuid):
             'other_episodes': models.MultiMedia.objects.get(uuid = season_uuid).media_set.all()
         }
     
+    return render(request, 'home/open_video.html', context)
+
+def open_single_video(request, search_value, video_uuid):
+    if request.method == 'GET':
+        video = models.Media.objects.get(uuid = video_uuid)
+
+        context = {
+            'video': video,
+        }
+
     return render(request, 'home/open_video.html', context)
 
 
@@ -455,20 +466,30 @@ def upload_media(request, username):
 
         else:
             single_media_form = forms.SingleMediaForm(request.POST)
-            media_form = forms.MediaForm(request.POST)
-            media_form = forms.MediaForm()
-
+            media_form = forms.MediaForm(request.POST, request.FILES)
+            print('files', request.FILES)
+            
             if single_media_form.is_valid() and media_form.is_valid():
                 single_media_object = single_media_form.save()
                 single_media_object.uploader = request.user
-                media_object = media_form.save()
+                single_media_object.save()
 
-                media_object.single_media = single_media_object
-                media_object.save()
+                media_object = models.Media.objects.create(
+                    name = single_media_form.cleaned_data.get('name'),
+                    cover = request.FILES.get('cover'),
+                    file = request.FILES.get('file'),
+                    single_media = single_media_object,
+                )
+                #media_object.single_media = single_media_object
+                #media_object.save()
 
                 print(media_object.single_media.genre, media_object.single_media, media_object.single_media.uploader)
+                messages.success(request, f'{media_object.name} uploaded successfully')
+                return redirect('recent_uploads', {'username': request.user.username})
             
             else:
+                print('form is not valid')
+                print(single_media_form.errors, media_form.errors)
                 video_playlist_form = forms.VideoPlayListForm()
 
                 context = {
@@ -497,7 +518,7 @@ def upload_multi_media(request, video_playlist_uuid):
     context = None 
 
     if request.method == 'POST':
-        multi_media_form = forms.MultiMediaForm(request.POST)
+        multi_media_form = forms.MultiMediaForm(request.POST, request.FILES)
         print(multi_media_form, request.POST)
 
         if multi_media_form.is_valid():
@@ -539,7 +560,7 @@ def upload_episodes(request, multi_media_uuid, episode_count = None):
     )
 
     if request.method == 'POST':
-        media_formset = MediaFormset(request.POST)
+        media_formset = MediaFormset(request.POST, request.FILES)
 
         if media_formset.is_valid():
             for form in media_formset:
@@ -579,7 +600,7 @@ def recent_uploads(request, username):
     if request.method == 'GET':
         single_medias = models.SingleMedia.objects.all().filter(uploader = user)[0:10]
         video_playlists = models.VideoPlayList.objects.all().filter(uploader = user)[0:10]
-
+        print([m.media.cover for m in single_medias])
         context = {
             'single_medias': single_medias,
             'video_playlists': video_playlists,
@@ -612,7 +633,11 @@ def delete_episode(request, uuid):
     item.delete()
     return redirect(request.META.get('HTTP_REFERER'))
 
-
+@login_required(login_url = '/login/')
+def delete_single_media(request, uuid):
+    item = models.SingleMedia.objects.get(uuid = uuid)
+    items.delete()
+    return redirect(request.META.get('HTTP_REFERER'))
 
 """
 <---------------- Edit Views --------------------------->
@@ -655,7 +680,6 @@ def edit_playlist(request, username, playlist_uuid):
         }
 
     return render(request, 'home/edit_playlist.html', context)
-
 
 
 @login_required(login_url = '/login/')
@@ -771,6 +795,57 @@ def add_more_episodes(request, uuid):
         }
 
     return render(request, 'home/more_episode_form.html', context)
+
+def edit_single_media(request, uuid):
+    single_media = models.SingleMedia.objects.get(uuid = uuid)
+    media = single_media.media
+    context = None
+    redirect_to  = True
+    print(single_media, media.cover, media.file)
+
+    if request.method == 'POST':
+        single_media_form = forms.SingleMediaForm(request.POST, instance = single_media)
+        media_form = forms.MediaForm(request.POST, instance = media) 
+
+        if single_media_form.has_changed() or media_form.has_changed():
+            if single_media_form.is_valid() and media_form.is_valid():
+                single_media_cleaned_data = single_media_form.cleaned_data 
+                
+                for attribute in single_media_form.changed_data:
+                    setattr(single_media, attribute, single_media_cleaned_data.get(attribute))
+
+                single_media_form.save()
+                
+                media_cleaned_data = media_form.cleaned_data
+                
+                for attribute in single_media_form.changed_data:
+                    setattr(single_media, attribute, media_cleaned_data.get(attribute))
+
+                media_form.save()
+
+                messages.success(request, 'Chagnes done successfully!')
+            
+            else:
+                redirect_to = False
+                context = {
+                    'single_media_form': single_media_form,
+                    'media_form': media_form,
+                }
+
+        if redirect_to:
+            return redirect('recent_uploads', username = request.user.username)
+
+
+    if request.method == 'GET':
+        single_media_form = forms.SingleMediaForm(instance = single_media)
+        media_form = forms.MediaForm(instance = media)
+
+        context = {
+            'single_media_form': single_media_form,
+            'media_form': media_form,
+        }
+        
+    return render(request, 'home/edit_single_media.html', context)
 
 
 # <---------- User Follow and following ------------->

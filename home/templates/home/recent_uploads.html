@@ -1,63 +1,67 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 {% block content %}
-<div class="container">
-    <div class="col-9">
-        <h3 class="text-center">Recent Single Media</h3>
-        <div class="row">
-            {% for media in single_medias %}
-            <div class="col-lg-3 col-md-4 my-3 px-1">
-                <div class="card ">
-                    <img src="..." class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <h4 class="card-title">{{ media.name }}</h4>
-                        <h5 class="card-title">
-                            {{ media.media_type }}, Genre: {{ media.genre }}, Quality: {{ media.quality }}
-                        </h5>
-                        <p class="card-text">{{ media.description }}</p>
-                        <p class="card-text">
-                            < <small> class="text-muted">Uploaded on : {{ media.date_created }}</small>
-                                <small class="text-muted">Uploaded by : {{ media.uploader.username|title }}</small>
-                        </p>
-                        <p class="card-footer">
-                            <a class="button btn-info" href="">Edit</a>
-                            <a class="button btn-danger" href="">Delete</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
+{% include 'navbar.html' %}
+<div class="container my-5">
+  <div class="col-9">
+    <h3 class="text-center">Recent Single Medias</h3>
+    <div class="row">
+      {% for single_media in single_medias %}
+      <div class="col-lg-4 col-md-6 my-3 px-1">
+        <div class="card ">
+          {% if single_media.media.cover %}
+          <img src="{{ single_media.media.cover.url }}" class="card-img-top" alt="...">
+          {% endif %}
+          <div class="card-body">
+            <h4 class="card-title">{{ single_media.media.name }}</h4>
+            <h6 class="card-title">
+              {{ single_media.get_media_type_display }}, Genre: {{ single_media.genre }}, Quality: {{ single_media.quality }}
+            </h6>
+            <p class="card-text">Description: <br>{{ single_media.description }}</p>
+            <p class="card-text">
+              <small class="text-muted">Uploaded on : {{ single_media.date_created|date }}</small>
+              <small class="text-muted">Uploaded by : {{ single_media.uploader.username|title }}</small>
+            </p>
+            <p class="card-footer text-center">
+              <a class="btn btn-info" href="{% url 'edit_single_media' single_media.uuid %}">Edit</a>
+              <a class="btn btn-danger" href="{% url 'delete_single_media' single_media.uuid %}">Delete</a>
+            </p>
+          </div>
         </div>
-        <h3 class="text-center">Recent PlayList</h3>
-        <div class="row">
-            {% for playlist in video_playlists %}
-            <div class="col-lg-4 col-md-6 my-3 px-1">
-                <div class="card ">
-                    <img src="..." class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <h4 class="card-title">{{ playlist.name }}</h4>
-                        <h6 class="card-title">
-                            {{ playlist.get_media_type_display }}, Genre: {{ playlist.genre }}, Quality: {{ playlist.quality }}
-                        </h6>
-                          <h6 class="card-title">Seasons:
-                            {{ playlist.multimedia_set.all|length }}
-                        </h6>
-                        <p class="card-text">Description:<br>{{ playlist.description }}</p>
-                        <p class="card-text">
-                             <small class="text-muted">Uploaded on : {{ playlist.date_created|date }}</small>
-                                <small class="text-muted">Uploaded by : {{ playlist.uploader.username|title }}</small>
-                        </p>
-                        <p class="card-footer text-center my-auto">
-                            <a class="btn btn-info" href="{% url 'edit_playlist' request.user.username playlist.uuid %}">Edit</a>
-                            <a href="{% url 'delete_playlist' playlist.uuid %}" class="btn btn-danger">Delete</a>
-                        </p>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-        {% endfor %}
+      </div>
+      {% endfor %}
     </div>
+    <h3 class="text-center">Recent PlayLists</h3>
+    <div class="row">
+      {% for playlist in video_playlists %}
+      <div class="col-lg-4 col-md-6 my-3 px-1">
+        <div class="card ">
+          {% if playlist.cover %}
+          <img src="{{ playlist.cover.url }}" class="card-img-top" alt="...">
+          {% endif %}
+          <div class="card-body">
+            <h4 class="card-title">{{ playlist.name }}</h4>
+            <h6 class="card-title">
+              {{ playlist.get_media_type_display }}, Genre: {{ playlist.genre }}, Quality: {{ playlist.quality }}
+            </h6>
+            <h6 class="card-title">Seasons:
+              {{ playlist.multimedia_set.all|length }}
+            </h6>
+            <p class="card-text">Description:<br>{{ playlist.description }}</p>
+            <p class="card-text">
+              <small class="text-muted">Uploaded on : {{ playlist.date_created|date }}</small>
+              <small class="text-muted">Uploaded by : {{ playlist.uploader.username|title }}</small>
+            </p>
+            <p class="card-footer text-center my-auto">
+              <a class="btn btn-info" href="{% url 'edit_playlist' request.user.username playlist.uuid %}">Edit</a>
+              <a href="{% url 'delete_playlist' playlist.uuid %}" class="btn btn-danger">Delete</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
 </div>
 </div>
 {% endblock content %}

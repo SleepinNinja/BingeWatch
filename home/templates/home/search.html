@@ -4,96 +4,72 @@
 {% include 'navbar.html' %}
 {% include 'home/search_form.html' %}
 <div class="container-fluid mt-5">
-    {% if animes %}
-    <div class="row">
-        <div class="col-9">
-            <h2 class="text-center">Anime</h2>
-            <div class="row">
-                {% for anime in animes %}
-                <div class="col-lg-4 col-md-6 my-3 px-1">
-                    <a href="{{ anime.get_absolute_url }}" class="nav-link text-dark">
-                        <div class="card">
-                            {% if anime.cover %}
-                        <img src="{{ anime.cover.url }}" class="card-img-top" alt="...">
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">{{ anime.name|title }}, <small>
-                               Quality {{ anime.quality }}
-                            </small></h5>
-                            <p class="card-text">{{ anime.genre }}</p>
-                            <p class="card-text">{{ anime.description }}</p>
-                            <p class="card-text"><small class="text-muted">{{ anime.date_created }}, Uploaded By: {{ anime.uploader.username|title }}</small></p>
-                        </div>
-                    </div>
-                </div>
-                    </a>
-                {% endfor %}
+  <div class="row">
+    <div class="col-md-9">
+         {% if animes %}
+    <h2 class="text-center">Anime</h2>
+      <div class="row mb-5">
+        {% for anime in animes %}
+        <div class="col-lg-4 col-md-6 my-3 px-1">
+          <a href="{{ anime.get_absolute_url }}" class="nav-link text-dark">
+            <div class="card">
+              {% if anime.cover %}
+              <img src="{{ anime.cover.url }}" class="card-img-top" alt="...">
+              {% endif %}
+              <div class="card-body">
+                <h5 class="card-title">{{ anime.name|title }}, <small>
+                    Quality {{ anime.quality }}
+                  </small></h5>
+                <p class="card-text">{{ anime.genre }}</p>
+                <p class="card-text">{{ anime.description }}</p>
+                <p class="card-text"><small class="text-muted">{{ anime.date_created }}, Uploaded By: {{ anime.uploader.username|title }}</small></p>
+              </div>
             </div>
         </div>
-    {% endif %}
-    {% if movies %}
-    <div class="row">
-        <div class="col-9">
-            <div class="row">
-                {% for _ in search_value|add:'hello' %}
-                <div class="col-lg-3 col-md-4 my-3 px-1">
-                    <div class="card ">
-                        <img src="..." class="card-img-top" alt="...">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ search_value }}</h5>
-                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                            <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% if movies %}
+      <h2 class="text-center">Movies</h2>
+      <div class="row mb-5">
+        {% for single_media in movies %}
+        <div class="col-lg-4 col-md-6 my-3 px-1">
+          <a href="{{ single_media.get_absolute_url }}" class="nav-link text-dark">
+            <div class="card ">
+              {% if single_media.media.cover %}
+              <img src="{{ single_media.media.cover.url }}" class="card-img-top" alt="...">
+              {% endif %}
+              <div class="card-body">
+                <h4 class="card-title">{{ single_media.media.name }}</h4>
+                <h6 class="card-title">
+                  {{ single_media.get_media_type_display }}, Genre: {{ single_media.genre }}, Quality: {{ single_media.quality }}
+                </h6>
+                <p class="card-text">{{ single_media.description }}</p>
+                <p class="card-text">
+                  <small class="text-muted">Uploaded on : {{ single_media.date_created|date }}</small>
+                  <small class="text-muted">Uploaded by : {{ single_media.uploader.username|title }}</small>
+                </p>
+              </div>
             </div>
+          </a>
         </div>
-    {% endif %}
-    {% if web_series %}
-    <div class="row">
-        <div class="col-9">
-            <div class="row">
-                {% for _ in search_value|add:'hello' %}
-                <div class="col-lg-3 col-md-4 my-3 px-1">
-                    <div class="card ">
-                        <img src="..." class="card-img-top" alt="...">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ search_value }}</h5>
-                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                            <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    {% endif %}
-    <div class="row">
-        <div class="col-9">
-            <div class="row">
-                {% for _ in search_value|add:'hello' %}
-                <div class="col-lg-3 col-md-4 my-3 px-1">
-                    <div class="card ">
-                        <img src="..." class="card-img-top" alt="...">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ search_value }}</h5>
-                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                            <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="col-3 pl-4 pr-0 text-center">
-           {% include 'home/side_nav.html' %}
-           {% block genre %}
-               {% for genre in genres %} 
-                  <a class="nav-link" href="{% url 'search' genre %}">{{ genre }}</a>
-               {% endfor %}
-            {% endblock genre %}
-        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% if web_series %}
+      <h2 class="text-center">Web Series</h2>
+      <div class="row">
+        {{ web_series }}
+      </div>
     </div>
-</div>
-{% endblock content %}
+     {% endif %}
+    <div class="col-md-3">
+      {% include 'home/side_nav.html' %}
+      {% block genre %}
+      {% for genre in genres %}
+      <a class="nav-link" href="{% url 'search' genre %}">{{ genre }}</a>
+      {% endfor %}
+      {% endblock genre %}
+      {% endblock content %}
+    </div>

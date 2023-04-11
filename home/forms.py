@@ -162,13 +162,14 @@ class SingleMediaForm(forms.ModelForm):
 
 class MediaForm(forms.ModelForm):
     def validate_name(name):
+        print('validating name')
         pattern = '[a-zA-Z0-9.,''"" ]+'
         result = validate_re(re.fullmatch, pattern, name)
-      
+    
         if not result:
             raise ValidationError('%(name)s is not valid name', code = 'invalid', params = {'name': name})
     
-    name = forms.CharField(label = 'Episode Name', validators = [validate_name,],
+    name = forms.CharField(label = 'Media name', validators = [validate_name,],
             error_messages = {
                 'required': 'Please enter a value',
             }
@@ -177,7 +178,7 @@ class MediaForm(forms.ModelForm):
     class Meta:
         model = models.Media
         # need to add cover and file in fields
-        fields = ('name',)
+        fields = ('name', 'cover', 'file')
 
 
 class MultiMediaForm(forms.ModelForm):

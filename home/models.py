@@ -79,12 +79,18 @@ class BaseMedia(models.Model):
 
 class SingleMedia(BaseMedia): #movie
     media_type =  models.CharField('Type of Media', max_length = 50, default = 'Movie', choices = (BaseMedia.MEDIA_TYPES[0],))
+    name = models.CharField('name', max_length = 100, blank = True, null = True)
+    
+    def save(self, *args, **kwargs):
+        self.name = self.media.name 
+        super().save(*args, **kwargs) 
+
+    def get_absolute_url(self):
+        return reverse('open_single_video', kwargs = {'search_value': self.name, 'video_uuid': self.media.uuid})
 
     class Meta:
         ordering = ['date_created']
 
-    def get_absolute_url(self):
-        return reverse()
 
 
 def videoplaylist_file_storage(instance, filename):
@@ -128,6 +134,7 @@ def media_file_storage(instance, filename):
     if instance.multi_media:
         return f'{instance.multi_media.playlist.uploader.username}\\{instance.multi_media.playlist.get_media_type_display()}\\{instance.multi_media.playlist.name}\\{instance.multi_media.name}\\{instance.name}\\{filename}' 
 
+    print(instance.single_media)
     return f'{instance.single_media.uploader.username}\\{instance.single_media.get_media_type_display()}\\{instance.name}\\{filename}' 
 
 class Media(models.Model):
@@ -149,6 +156,7 @@ class Media(models.Model):
             return self.multi_media.playlist.uploader.username + self.multi_media.playlist.get_media_type_display() + self.multi_media.playlist.name + self.multi_media.name + self.name
 
         return self.single_media.uploader.username + self.single_media.get_media_type_display() + self.name
+        #return ''
 
     def get_absolute_url_multi_media(self):
         search_value = self.multi_media.playlist.name

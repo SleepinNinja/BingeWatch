@@ -61,12 +61,12 @@ class BaseMedia(models.Model):
         ('RO', 'Romance'),
         ('SCFI', 'Science Fiction'),
         ('TH', 'Thriller'),
-        ('OT', 'Other'),
+        ('OT', 'Other')
     )
 
     uuid = models.UUIDField('ID', default = uuid.uuid4, primary_key = True)
     name = models.CharField('Name', max_length = 100)
-    genre = MultiSelectField('Genre', choices = MEDIA_GENRES)
+    genre = MultiSelectField('Genre', choices=MEDIA_GENRES, max_length=10)
     user_wishlist = models.ForeignKey(WishList, on_delete = models.CASCADE, null = True, blank = True)
     uploader = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete = models.CASCADE, null = True)
     quality = models.CharField('Media Quality', max_length = 5, choices = MEDIA_QUALITY)
@@ -134,7 +134,6 @@ def media_file_storage(instance, filename):
     if instance.multi_media:
         return f'{instance.multi_media.playlist.uploader.username}\\{instance.multi_media.playlist.get_media_type_display()}\\{instance.multi_media.playlist.name}\\{instance.multi_media.name}\\{instance.name}\\{filename}' 
 
-    print(instance.single_media)
     return f'{instance.single_media.uploader.username}\\{instance.single_media.get_media_type_display()}\\{instance.name}\\{filename}' 
 
 class Media(models.Model):

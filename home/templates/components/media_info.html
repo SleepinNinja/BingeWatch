@@ -1,0 +1,42 @@
+<div class="col-lg-4 col-md-6 my-3 px-1">
+  <div class="card">
+    {% if media_type != 'movie' %}
+      {% if media.cover %}
+        <img src="{{ media.cover.url }}" class="card-img-top" alt="..." />
+      {% endif %}
+    {% elif media_type == 'movie' %}
+      {% if media.media.cover %}
+        <img src="{{ media.media.cover.url }}" class="card-img-top" alt="..." />
+        <p>hello</p>
+      {% endif %}
+    {% endif %}
+
+    <div class="card-body">
+      <h4 class="card-title">{{ media.media.name }}</h4>
+      <h6 class="card-title">{{ media.get_media_type_display }}, Genre: {{ media.genre }}, Quality: {{ media.quality }}</h6>
+      <p class="card-text">
+        Description: <br />{{ media.description }}
+      </p>
+      <p class="card-text">
+        <small class="text-muted">Uploaded on : {{ media.date_created|date }}</small>
+        <small class="text-muted">Uploaded by : {{ media.uploader.username|title }}</small>
+      </p>
+      <p class="card-footer text-center">
+        <a class="btn btn-info"  
+          {% if media_type != 'movie' %}
+            href="{% url 'edit_playlist' request.user.username media.uuid %}"
+          {% else %}
+            href="{% url 'edit_single_media' media.uuid %}"
+          {% endif %}>Edit
+        </a>
+        <a class="btn btn-danger" 
+          {% if media_type != 'movie' %}
+            href="{% url 'delete_playlist' media.uuid %}"
+          {% else %}
+            href="{% url 'delete_single_media' media.uuid %}"
+          {% endif %}>Delete
+      </a>
+      </p>
+    </div>
+  </div>
+</div>

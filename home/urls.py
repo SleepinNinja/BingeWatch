@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 
+
 urlpatterns = [
     path('', views.home_page, name = 'home_page'),
     path('/<str:media_type>/', views.media_pages, name = 'media_pages'),
@@ -34,4 +35,5 @@ urlpatterns = [
     path('follow/<str:follow_username>/', views.follow_uploader, name='follow_uploader'),
     path('accept_request/<str:request_uuid>', views.accept_request, name='accept_request'),
     path('cancel_request/<str:request_uuid>', views.cancel_request, name = 'cancel_request'),
+    path('recent/<str:media_type>', views.FilterByGenreInProfileView.as_view() ,name='recent_media')
 ]

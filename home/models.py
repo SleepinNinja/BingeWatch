@@ -81,6 +81,9 @@ class SingleMedia(BaseMedia): #movie
     media_type =  models.CharField('Type of Media', max_length = 50, default = 'Movie', choices = (BaseMedia.MEDIA_TYPES[0],))
     name = models.CharField('name', max_length = 100, blank = True, null = True)
     
+    def __str__(self):
+        return f'{self.name}'
+
     def save(self, *args, **kwargs):
         self.name = self.media.name 
         super().save(*args, **kwargs) 

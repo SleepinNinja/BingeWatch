@@ -5,9 +5,13 @@ from django.core.mail import send_mail
 from django.contrib import messages
 from django.forms import modelformset_factory, inlineformset_factory, modelform_factory
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic.list import ListView
 from . import models, forms
 import random
 import smtplib
+
+
 
 
 # Create your views here
@@ -46,8 +50,10 @@ def media_pages(request, media_type):
             'media_type': media_type,
         }
 
-    return render(request, 'home/media_pages.html', context)
+    return render(request,  'media_pages.html', context)
 
+def search_for_media():
+    pass
 
 def home_page(request):
     context = None 
@@ -73,17 +79,16 @@ def home_page(request):
 
     elif request.method == 'GET':
         form = forms.SearchForm()
-
         context = {
             'search_form': form,
             'genres': genres,
             'media_types': media_types
         }
 
-    return render(request, 'home/home_page.html', context)
+    return render(request,  'home_page.html', context)
 
 def search(request, search_value):
-    contexxt = None 
+    context = None 
 
     if request.method == 'POST':
         form = forms.SearchForm(request.POST)
@@ -117,9 +122,8 @@ def search(request, search_value):
             'animes': anime,
         }
 
-        #print(context)
 
-    return render(request, 'home/search.html', context)
+    return render(request,  'search.html', context)
 
 
 
@@ -135,7 +139,7 @@ def open_playlist(request, search_value, uuid):
             'multi_medias': multi_medias,
         }
 
-    return render(request, 'home/open_playlist.html', context)
+    return render(request,  'open_playlist.html', context)
 
 
 def open_media(request, search_value, season_name, season_uuid):
@@ -149,7 +153,7 @@ def open_media(request, search_value, season_name, season_uuid):
             'medias': medias,
         }
 
-    return render(request, 'home/open_media.html', context) 
+    return render(request,  'open_media.html', context) 
 
 
 def open_video(request, search_value, season_name, season_uuid, video_uuid):
@@ -161,8 +165,7 @@ def open_video(request, search_value, season_name, season_uuid, video_uuid):
             'video': video,
             'other_episodes': models.MultiMedia.objects.get(uuid = season_uuid).media_set.all()
         }
-    
-    return render(request, 'home/open_video.html', context)
+    return render(request,  'open_video.html', context)
 
 def open_single_video(request, search_value, video_uuid):
     if request.method == 'GET':
@@ -172,7 +175,7 @@ def open_single_video(request, search_value, video_uuid):
             'video': video,
         }
 
-    return render(request, 'home/open_video.html', context)
+    return render(request,  'open_video.html', context)
 
 
 # <--------------- User login, logout, authentication ---------------->
@@ -214,7 +217,7 @@ def login_user(request):
             'login_form': form,
         }
 
-    return render(request, 'home/login.html', context)
+    return render(request,  'login.html', context)
 
 
 def signup(request):
@@ -252,7 +255,7 @@ def signup(request):
             'signup_form': form,
         }
 
-    return render(request, 'home/signup.html', context)
+    return render(request,  'signup.html', context)
 
 
 def send_otp(request, username = None):
@@ -312,7 +315,7 @@ def validate_otp(request, otp = None):
             'otp_form': form,
         }
 
-    return render(request, 'home/otp.html', context)
+    return render(request,  'otp.html', context)
 
 
 def forgot_password(request):
@@ -337,7 +340,7 @@ def forgot_password(request):
             'forgot_password_form': form,
         }
 
-    return render(request, 'home/forgot_password.html', context)
+    return render(request,  'forgot_password.html', context)
 
 
 @login_required(login_url = '/login/')
@@ -367,7 +370,7 @@ def change_password(request):
             'change_password_form': form,
         }
 
-    return render(request, 'home/change_password.html', context)
+    return render(request,  'change_password.html', context)
 
 
 @login_required(login_url = '/login/')
@@ -384,7 +387,7 @@ def user_account(request, username):
     }
 
     print(context)
-    return render(request, 'home/user_account.html', context)
+    return render(request,  'user_account.html', context)
 
 
 @login_required(login_url = '/login/')
@@ -423,7 +426,7 @@ def update_account(request, username):
             'update_form': form,
         }
 
-    return render(request, 'home/update_form.html', context = context)
+    return render(request,  'update_form.html', context = context)
 
 
 @login_required(login_url = '/login/ ')
@@ -510,7 +513,7 @@ def upload_media(request, username):
             'media_form': media_form
         }
 
-    return render(request, 'home/upload_media.html', context)
+    return render(request,  'upload_media.html', context)
 
 
 @login_required(login_url = '/login/')
@@ -544,7 +547,7 @@ def upload_multi_media(request, video_playlist_uuid):
             'multi_media_form': multi_media_form,
         }
 
-    return render(request, 'home/upload_multi_media.html', context) 
+    return render(request,  'upload_multi_media.html', context) 
 
 
 
@@ -586,7 +589,7 @@ def upload_episodes(request, multi_media_uuid, episode_count = None):
             'media_formset': media_formset,
         }
 
-    return render(request, 'home/episode_upload_form.html', context)
+    return render(request,  'episode_upload_form.html', context)
 
 
 @login_required(login_url = '/login/')
@@ -606,7 +609,33 @@ def recent_uploads(request, username):
             'video_playlists': video_playlists,
         }
 
-        return render(request, 'home/recent_uploads.html', context)
+        return render(request,  'recent_uploads.html', context)
+
+
+class FilterByGenreInProfileView(LoginRequiredMixin, ListView):
+    template_name = 'recent_media.html'
+    context_object_name = 'media_list'
+    
+    def get_queryset(self, **kwargs):
+        media_type = kwargs.get('media_type').lower()
+        if media_type in ['anime', 'web_series']:
+            return models.VideoPlayList.objects.filter(media_type=media_type[0].upper())[:10]
+        elif media_type == 'movie':
+            return models.SingleMedia.objects.filter(uploader=self.request.user)[:10]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['media_type'] = kwargs.get('media_type').lower()
+        return context
+
+    def get(self, *args, **kwargs):
+        self.object_list = self.get_queryset(**kwargs)
+        context = self.get_context_data(**kwargs)
+        print('context', context)
+        return self.render_to_response(context)
+    
+
+    
         
 
 """
@@ -679,7 +708,7 @@ def edit_playlist(request, username, playlist_uuid):
             'playlist': playlist,
         }
 
-    return render(request, 'home/edit_playlist.html', context)
+    return render(request,  'edit_playlist.html', context)
 
 
 @login_required(login_url = '/login/')
@@ -727,7 +756,7 @@ def edit_multi_media(request, uuid):
             'multi_media_episodes': multi_media_episodes,
         }
 
-    return render(request, 'home/edit_multi_media.html', context)
+    return render(request,  'edit_multi_media.html', context)
 
 
 @login_required(login_url = '/login/')
@@ -766,7 +795,7 @@ def edit_episode(request, uuid):
             'media_form': media_form,
         }
 
-    return render(request, 'home/edit_episode.html', context)
+    return render(request,  'edit_episode.html', context)
 
 
 @login_required(login_url = '/login/')
@@ -794,7 +823,7 @@ def add_more_episodes(request, uuid):
             'more_episode_form': add_more_episode_form,
         }
 
-    return render(request, 'home/more_episode_form.html', context)
+    return render(request,  'more_episode_form.html', context)
 
 def edit_single_media(request, uuid):
     single_media = models.SingleMedia.objects.get(uuid = uuid)
@@ -845,7 +874,7 @@ def edit_single_media(request, uuid):
             'media_form': media_form,
         }
         
-    return render(request, 'home/edit_single_media.html', context)
+    return render(request,  'edit_single_media.html', context)
 
 
 # <---------- User Follow and following ------------->
@@ -868,13 +897,9 @@ def follow_uploader(request, follow_username):
             user_request_list.request_set.add(new_request)
             user_request_list.save()
             
-            print(request_list, new_request)
-
             messages.info(request, f'Request sent successfully to {user_to_follow.username}')
 
         else:
-            #print(request.user, user_to_follow)
-            #print(request.user.followers_set.all(), request.user.following_set.all())
             new_follower = models.Followers.objects.create(follower = request.user)
             new_following = models.Following.objects.create(following = user_to_follow)
             user_to_follow.followers_set.add(new_follower)

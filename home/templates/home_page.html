@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 {% include 'navbar.html' %}
-{% include 'home/search_form.html' %}
+{% include 'search_form.html' %}
 <div class="container-fluid">
     <div class="row">
         <div class="col-9">
@@ -14,7 +14,7 @@
             </div>
         </div>
         <div class="col-3 text-center">
-            {% include 'home/side_nav.html' %}
+            {% include 'side_nav.html' %}
             {% block genre %}
                {% for val1, val2 in genres %} 
                   <a class="nav-link" href="{% url 'search' val2 %}">{{ val2 }}</a>

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    
+{% endblock head %}
+
+
+
+{% block content %}
+<h1 class="text-center mb-5">Recent {{ media_type|title }}</h1>
+    {% for media in media_list %}
+        {% include 'components/media_info.html' %}
+    {% endfor %}
+{% endblock content %}
+    
+    

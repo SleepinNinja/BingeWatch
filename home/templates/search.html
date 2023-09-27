@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 {% block content %}
 {% include 'navbar.html' %}
-{% include 'home/search_form.html' %}
+{% include 'search_form.html' %}
 <div class="container-fluid mt-5">
   <div class="row">
     <div class="col-md-9">
@@ -65,7 +65,7 @@
     </div>
      {% endif %}
     <div class="col-md-3">
-      {% include 'home/side_nav.html' %}
+      {% include 'side_nav.html' %}
       {% block genre %}
       {% for genre in genres %}
       <a class="nav-link" href="{% url 'search' genre %}">{{ genre }}</a>

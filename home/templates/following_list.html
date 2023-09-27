@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block content %}
+  {% include 'navbar.html' %}
+  <div class="container">
+    <div class="row">
+      {% for user in following_list %}
+        <div class="col-lg-3 col-md-4">
+          {% include 'components/user_card.html' with user=user only %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

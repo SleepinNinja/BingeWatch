@@ -14,21 +14,26 @@
             <h5 class="card-title">{{ user.username|title }},
               <small class="text-muted">{{ user.first_name|title }} {{ user.last_name|title }}</small>
             </h5>
-            <p class="card-text">{{user.description }}</p>
+            <p class="card-text">{{ user.description }}</p>
             <p class="card-text">{{ user.email }}<p>
                 <p class="card-text">
-                  <small class="text-muted">Followers {% if user.followers_set %}
-                    {{ user.followers_set.count }}
-                    {% else %}
-                    0
-                    {% endif %}</small>
-                  <small class="text-muted ml-4">Following
-                    {% if user.followings_set %}
-                    {{ user.followings_set.count }}
+                  <a class="nav-link" href="{% url 'show_followers' %}">
+                  <small class="text-muted">Followers {% if user.followers %}
+                    {{ user.followers.all.count }}
                     {% else %}
                     0
                     {% endif %}
                   </small>
+                </a>
+                <a class="nav-link" href="{% url 'show_following' %}">
+                  <small class="text-muted ml-4">Following
+                    {% if user.user_followers %}
+                    {{ user.user_followers.all.count }}
+                    {% else %}
+                    0
+                    {% endif %}
+                  </small>
+                <a>
                 </p>
           </div>
           <div class="card-footer">

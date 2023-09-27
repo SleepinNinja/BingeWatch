@@ -8,12 +8,12 @@ import uuid
 
 
 class CustomUser(AbstractUser):
+    # todo : need to add a firstname field in this model and make it required.
     uuid = models.UUIDField('User ID', default = uuid.uuid4, primary_key = True)
-    followers_count = models.PositiveIntegerField(default = 0)
+    followers = models.ManyToManyField('self', related_name='user_followers', symmetrical=False, null=True, blank=True)
     profile_photo = models.ImageField(blank = True, null = True)
     description = models.TextField(max_length = 1000, blank = True, null = True)
     private = models.BooleanField(default = False)
-    following_count = models.PositiveIntegerField(default = 0)
 
     def __str__(self):
         return f'Username: {self.username}, name: {self.first_name + " " + self.last_name}'
@@ -21,13 +21,16 @@ class CustomUser(AbstractUser):
     def get_absolute_url(self):
         return reverse('user_account', username = self.user.username)
 
+    def full_name(self):
+        return self.first_name + ' ' + getattr(self, 'last_name', '') 
 
-class Followers(models.Model):
-    follower = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete = models.CASCADE, null = True)
+
+# class Followers(models.Model):
+#     follower = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete = models.CASCADE, null = True)
 
 
-class Following(models.Model):
-    following = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete = models.CASCADE, null = True) 
+# class Following(models.Model):
+#     following = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete = models.CASCADE, null = True) 
 
 
 class WishList(models.Model):
@@ -123,7 +126,6 @@ class MultiMedia(models.Model): # anime and web series
     description = models.TextField('Season Description', max_length = 1000, blank = True, null = True)
     playlist = models.ForeignKey(VideoPlayList, on_delete = models.CASCADE, null = True)
     date_created = models.DateTimeField(auto_now_add = True)
-    #episode_count = models.PositiveIntegerField('No. of episodes')
 
     def get_absolute_url(self):
         return reverse('open_media', kwargs = {'search_value': self.playlist.name, 'season_name': self.name, 'season_uuid': self.uuid})
@@ -156,9 +158,8 @@ class Media(models.Model):
     def __str__(self):
         if self.multi_media:
             return self.multi_media.playlist.uploader.username + self.multi_media.playlist.get_media_type_display() + self.multi_media.playlist.name + self.multi_media.name + self.name
-
         return self.single_media.uploader.username + self.single_media.get_media_type_display() + self.name
-        #return ''
+    
 
     def get_absolute_url_multi_media(self):
         search_value = self.multi_media.playlist.name
@@ -167,8 +168,6 @@ class Media(models.Model):
 
         return reverse('open_video', kwargs = {'search_value': search_value, 'season_name': season_name, 'season_uuid': season_uuid, 'video_uuid': self.uuid})
 
-    #def get_absolute_url_single_media(self):
-    #    return reverse('')
 
     class Meta():
         ordering = ['upload_date',]

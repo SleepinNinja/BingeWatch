@@ -6,8 +6,19 @@ from django.contrib import messages
 from django.forms import modelformset_factory, inlineformset_factory, modelform_factory
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic.base import TemplateResponseMixin
+from django.views import View
+from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
+from django.contrib.auth import get_user_model
+from django.shortcuts import reverse
 from . import models, forms
+
+# from .models import (
+#     Followers, 
+#     Following
+# )
+
 import random
 import smtplib
 
@@ -16,19 +27,16 @@ import smtplib
 
 # Create your views here
 def find(search_value):
-    genres = [genres[1] for genres in models.BaseMedia.MEDIA_GENRES]
+    genres = {genres[1]: genres[0] for genres in models.BaseMedia.MEDIA_GENRES}
+
     if search_value in genres:
-        playlist_obj = models.VideoPlayList.objects.first()
-        anime = [playlist for playlist in models.VideoPlayList.objects.filter(media_type = 'A') if (search_value in str(playlist.genre))]
-        web_series = [playlist for playlist in models.VideoPlayList.objects.filter(media_type = 'W') if (search_value in str(playlist.genre))]
-        single_medias = [single_media for single_media in models.SingleMedia.objects.all() if search_value in str(single_media.genre)]
-        print(anime, web_series, single_medias)
-           
+        anime = models.VideoPlayList.objects.filter(media_type = 'A', genre__contains=genres.get(search_value))
+        web_series = models.VideoPlayList.objects.filter(media_type = 'W', genre__contains=genres.get(search_value))
+        single_medias = models.SingleMedia.objects.filter(genre__contains=genres.get(search_value))   
     else:
-        play_lists = models.VideoPlayList.objects.filter(name__icontains = search_value)
         single_medias = models.SingleMedia.objects.filter(name__icontains = search_value)
-        anime = play_lists.filter(media_type = 'A')
-        web_series = play_lists.filter(media_type = 'W')
+        anime = models.VideoPlayList.objects.filter( media_type = 'A', name__icontains = search_value)
+        web_series = models.VideoPlayList.objects.filter(media_type = 'W', name__icontains = search_value)
     
     return single_medias, web_series, anime
 
@@ -55,39 +63,67 @@ def media_pages(request, media_type):
 def search_for_media():
     pass
 
-def home_page(request):
-    context = None 
-    media_types = models.BaseMedia.MEDIA_TYPES
-    genres = models.BaseMedia.MEDIA_GENRES
+# def home_page(request):
+#     context = None 
+#     media_types = models.BaseMedia.MEDIA_TYPES
+#     genres = models.BaseMedia.MEDIA_GENRES
 
-    if request.method == 'POST':
-        form = forms.SearchForm(request.POST)
+#     if request.method == 'POST':
+#         form = forms.SearchForm(request.POST)
 
-        if form.is_valid():
-            search_value = form.cleaned_data.get('query')
-            return redirect('search', search_value = search_value)
+#         if form.is_valid():
+#             search_value = form.cleaned_data.get('query')
+#             return redirect('search', search_value = search_value)
 
-        else:
-            form = forms.SearchForm(request.POST)
-            genres = models.BaseMedia.MEDIA_GENRES
+#         else:
+#             form = forms.SearchForm(request.POST)
+#             genres = models.BaseMedia.MEDIA_GENRES
 
-            context = {
-                'search_form': form,
-                'genres': genres,
-                'media_types': media_types,
-            }
+#             context = {
+#                 'search_form': form,
+#                 'genres': genres,
+#                 'media_types': media_types,
+#             }
 
-    elif request.method == 'GET':
-        form = forms.SearchForm()
-        context = {
-            'search_form': form,
-            'genres': genres,
-            'media_types': media_types
-        }
+#     elif request.method == 'GET':
+#         form = forms.SearchForm()
+#         context = {
+#             'search_form': form,
+#             'genres': genres,
+#             'media_types': media_types
+#         }
 
-    return render(request,  'home_page.html', context)
+#     return render(request,  'home_page.html', context)
+
+
+class HomeView(FormView, TemplateResponseMixin):
+    template_name = 'home_page.html'
+    form_class = forms.SearchForm
+
+    def get_success_url(self, **kwargs):
+        return reverse('search', kwargs={'search_value': kwargs.get('search_value')})
+    
+    def get_context_data(self):
+        context = super().get_context_data()
+        context['search_form'] = self.form_class()
+        context['genres'] = models.BaseMedia.MEDIA_GENRES
+        context['media_type'] = models.BaseMedia.MEDIA_TYPES
+        return context
+
+    def form_valid(self, form):
+        search_value = form.cleaned_data.get('query')
+        success_url = self.get_success_url(search_value=search_value)
+        return redirect(success_url)
+
+    def form_invalid(self, form):
+        messages.error(self.request, f'{form.data.get("query")} is not a valid search value !')
+        return redirect('home_page')
+
+
+
 
 def search(request, search_value):
+    print('inside search')
     context = None 
 
     if request.method == 'POST':
@@ -100,7 +136,7 @@ def search(request, search_value):
             return redirect('search', search_value = search_value)
 
         else:
-            form = forms.SearchForm(requst.POST)
+            form = forms.SearchForm(request.POST)
             genres = models.BaseMedia.MEDIA_GENRES
 
             context = {
@@ -109,6 +145,7 @@ def search(request, search_value):
             }
 
     elif request.method == 'GET':
+        print('inside the get request of search function')
         form = forms.SearchForm()
         genres = models.BaseMedia.MEDIA_GENRES
         movies, web_series, anime = find(search_value)
@@ -200,7 +237,7 @@ def login_user(request):
 
             if user is not None:
                 login(request, user)
-                messages.success(request, 'Login successfull!')
+                messages.success(request, 'Login successful!')
                 return redirect('home_page')
 
 
@@ -271,7 +308,7 @@ def send_otp(request, username = None):
     try:
         send_mail(
             from_email = 'shuklapiyush993@gmail.com',
-            auth_password = 'Indi@nPost',
+            auth_password = '',
             subject = 'OTP for password change',
             message =  f'Your OTP is {otp}',
             recipient_list = [user_email],
@@ -470,7 +507,6 @@ def upload_media(request, username):
         else:
             single_media_form = forms.SingleMediaForm(request.POST)
             media_form = forms.MediaForm(request.POST, request.FILES)
-            print('files', request.FILES)
             
             if single_media_form.is_valid() and media_form.is_valid():
                 single_media_object = single_media_form.save()
@@ -486,11 +522,11 @@ def upload_media(request, username):
                 #media_object.single_media = single_media_object
                 #media_object.save()
 
-                print(media_object.single_media.genre, media_object.single_media, media_object.single_media.uploader)
                 messages.success(request, f'{media_object.name} uploaded successfully')
                 return redirect('recent_uploads', {'username': request.user.username})
             
             else:
+                messages.error(request, f'{single_medi_form.errors} {media_form.errors}')
                 print('form is not valid')
                 print(single_media_form.errors, media_form.errors)
                 video_playlist_form = forms.VideoPlayListForm()
@@ -631,7 +667,6 @@ class FilterByGenreInProfileView(LoginRequiredMixin, ListView):
     def get(self, *args, **kwargs):
         self.object_list = self.get_queryset(**kwargs)
         context = self.get_context_data(**kwargs)
-        print('context', context)
         return self.render_to_response(context)
     
 
@@ -937,4 +972,45 @@ def cancel_request(request, request_id):
 
 
 
-          
+class ShowFollowersView(ListView, LoginRequiredMixin):
+    template_name = 'followers_list.html'
+    context_object_name = 'follower_list'
+    paginate_by = 25
+    
+    def get_context_data(self):
+        context = super().get_context_data()
+        context['type'] = 'follower'
+        return context    
+
+    def get_queryset(self):
+        return self.request.user.followers.all()
+
+
+class ShowFollowingView(ListView, LoginRequiredMixin):
+    template_name = 'following_list.html'
+    context_object_name = 'following_list'
+    paginate_by = 25
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context['type'] = 'following'
+        return context     
+
+    def get_queryset(self):
+        return self.request.user.user_followers.all()
+
+
+class RemoveFollowerView(View, LoginRequiredMixin):
+    def get(self, *args, **kwargs):
+        user = get_user_model().objects.get(uuid=kwargs.get('uuid'))
+        self.request.user.followers.remove(user)
+        messages.info(self.request, f'{user.username} removed successfully!')
+        return HttpResponse(status=200)
+    
+
+class RemoveFollowingView(View, LoginRequiredMixin):
+    def get(self, *args, **kwargs):
+        user = get_user_model().objects.get(uuid=kwargs.get('uuid'))
+        self.request.user.user_followers.remove(user)
+        messages.info(self.request, f'{user.username} removed successfully!')
+        return HttpResponse(status=200)

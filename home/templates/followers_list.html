@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    
+{% endblock head %}
+
+
+{% block content %}
+
+{% include 'navbar.html' %}
+
+
+{% for user in follower_list %}
+    {% include 'components/user_card.html' with user=user only %}
+{% endfor %}
+    
+{% endblock content %}
+    
+    

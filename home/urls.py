@@ -1,9 +1,18 @@
 from django.urls import path
 from . import views
 
+from .views import (
+    HomeView,
+    ShowFollowersView,
+    ShowFollowingView,
+    RemoveFollowerView,
+    RemoveFollowingView,
+)
+
 
 urlpatterns = [
-    path('', views.home_page, name = 'home_page'),
+    #path('', views.home_page, name = 'home_page'),
+    path('', HomeView.as_view(), name = 'home_page'),
     path('/<str:media_type>/', views.media_pages, name = 'media_pages'),
     path('search/<str:search_value>/', views.search, name = 'search'),
     path('search/<str:search_value>/<str:uuid>/', views.open_playlist, name = 'open_playlist'),
@@ -21,6 +30,10 @@ urlpatterns = [
     path('update_account/<str:username>/', views.update_account, name='update_account'),
     path('<str:username>/upload_media/', views.upload_media, name = 'upload_media'),
     path('upload_multi_media/<str:video_playlist_uuid>/', views.upload_multi_media, name = 'upload_multi_media'),
+    path('user_account/followers', ShowFollowersView.as_view(), name='show_followers'),
+    path('user_account/following', ShowFollowingView.as_view(), name='show_following'),
+    path('user_account/remove_follower/<slug:uuid>/', RemoveFollowerView.as_view(), name='remove_follower'),
+    path('user_account/remove_following/<slug:uuid>/', RemoveFollowingView.as_view(), name='remove_following'),
     path('user_account/<str:username>/recent_uploads/', views.recent_uploads, name = 'recent_uploads'),
     path('user_account/upload_episodes/<str:multi_media_uuid>/<int:episode_count>/', views.upload_episodes, name = 'upload_episodes'),
     path('user_account/<str:username>/edit_playlist/<str:playlist_uuid>/', views.edit_playlist, name = 'edit_playlist'),

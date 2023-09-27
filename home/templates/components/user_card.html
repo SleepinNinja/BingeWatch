@@ -1,0 +1,27 @@
+<div class="card" style="width: 18rem;">
+  <img class="card-img-top" src="{{ user.profile_photo }}" alt="Card image cap" />
+  <div class="card-body">
+    <h5 class="card-title">{{ user.full_name }}</h5>
+    <h6 class="card-subtitle mb-2 text-muted">{{ user.username }}</h6>
+    <p class="card-subtitle mb-2 text-muted">
+      {% if user.followers %}
+        Followers : {{ user.followers.all.count }}&nbsp;
+      {% else %}
+        0
+      {% endif %}
+
+      {% if user.user_followers %}
+        Following : {{ user.user_followers.all.count }}
+      {% else %}
+        0
+      {% endif %}
+    </p>
+    <p class="card-text">{{ user.description }}</p>
+
+    {% if type == 'follower' %}
+      <a href="{% url 'remove_follower' uuid=user.uuid %}" class="btn btn-danger btn-sm">Remove</a>
+    {% else %}
+      <a href="{% url 'remove_following' uuid=user.uuid %}" class="btn btn-danger btn-sm">Remove</a>
+    {% endif %}
+  </div>
+</div>
